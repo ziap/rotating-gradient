@@ -1,7 +1,6 @@
 attribute vec2 a_vertex;
 attribute float a_interp;
 
-uniform vec2 u_scale;
 uniform vec4 u_color1;
 uniform vec4 u_color2;
 

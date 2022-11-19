@@ -43,8 +43,6 @@ async function init() {
   const canvas = document.querySelector('canvas')
   const [picker1, picker2] = document.querySelectorAll('input[type=color]')
 
-  const aspect_ratio = canvas.width / canvas.height
-
   const gl = canvas.getContext('webgl')
   const program = await compile_program(gl)
 
@@ -55,10 +53,10 @@ async function init() {
   let current_angle = 0
   let last = performance.now()
 
-  const vertexs = [
+  const vertices = [
     [1, 1], [-1, 1], [1, -1], [-1, -1]
   ]
-  create_buffer(gl, gl.getAttribLocation(program, "a_vertex"), vertexs)
+  create_buffer(gl, gl.getAttribLocation(program, "a_vertex"), vertices)
 
   const frame = () => {
     const current = performance.now()
@@ -66,12 +64,6 @@ async function init() {
     last = current
 
     gl.clear(gl.COLOR_BUFFER_BIT)
-
-    const scale = 0.75 + 0.25 * Math.sin(current_angle)
-    const current_scale = [scale, scale * aspect_ratio]
-
-    const u_scale = gl.getUniformLocation(program, "u_scale")
-    gl.uniform2fv(u_scale, current_scale)
 
     const u_color1 = gl.getUniformLocation(program, "u_color1")
     gl.uniform4fv(u_color1, to_rgb(picker1.value))
@@ -81,18 +73,14 @@ async function init() {
     const sin_x = Math.sin(current_angle)
     const cos_x = Math.cos(current_angle)
 
-    const interp = [
+    create_buffer(gl, gl.getAttribLocation(program, "a_interp"), [
       -sin_x,
       -cos_x,
       cos_x,
       sin_x
-    ]
+    ])
 
-    create_buffer(gl, gl.getAttribLocation(program, "a_interp"), interp)
-
-    const vertex_count = vertexs.length
-
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, vertex_count)
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, vertices.length)
     requestAnimationFrame(frame)
   }
 
